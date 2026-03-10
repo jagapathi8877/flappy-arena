@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --color-sky-bg: #4ec0ca;
+  --color-sky-light: #78d6e8;
+  --color-cloud: #ffffff;
+  --color-pipe-green: #58b33a;
+  --color-pipe-dark: #38891e;
+  --color-ground: #ded895;
+  --color-ground-dark: #c4a243;
+  --color-bird-yellow: #f8c830;
+  --color-bird-orange: #e8922a;
+  --color-text-dark: #2b2b2b;
+  --color-gold: #f0b800;
+  --color-silver: #a8b0b8;
+  --color-bronze: #c07028;
+  --color-card-bg: #fefffe;
+  --color-card-border: #c8ddd8;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--color-sky-bg);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+/* Prevent pull-to-refresh and overscroll on mobile */
+html, body {
+  overscroll-behavior: none;
+}
+
+/* Safe area padding for notched devices */
+@supports (padding: env(safe-area-inset-bottom)) {
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Rank movement animations */
+@keyframes rankUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes rankDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}

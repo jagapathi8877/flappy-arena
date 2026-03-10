@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: flappy-arena
+    runtime: node
+    plan: free
+    buildCommand: npm run build:deploy
+    startCommand: npm start
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true

@@ -1,0 +1,21 @@
+{
+  "name": "flappy-arena",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && npm run build",
+    "build": "npm run build:server && npm run build:client",
+    "build:deploy": "cd client && npm install && npm run build && cd ../server && npm install && npm run build",
+    "start": "node server/dist/server.js",
+    "seed": "cd server && npm run seed",
+    "seed:force": "cd server && npm run seed -- --force",
+    "install:all": "cd client && npm install && cd ../server && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
