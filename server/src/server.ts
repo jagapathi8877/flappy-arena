@@ -1,6 +1,5 @@
 import 'dotenv/config';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import express from 'express';
 import cors from 'cors';
 import { createServer } from 'http';
@@ -9,9 +8,6 @@ import { initSocket } from './sockets/leaderboardSocket';
 import authRoutes from './routes/authRoutes';
 import scoreRoutes from './routes/scoreRoutes';
 import leaderboardRoutes from './routes/leaderboardRoutes';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 const PORT = Number(process.env.PORT) || 3001;
 
 async function main() {

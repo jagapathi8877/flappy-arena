@@ -1,13 +1,9 @@
 import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
 import { connectDB } from './database/connection';
 import { User } from './models/User';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 function loadStudents(): [string, string][] {
   const filePath = path.join(__dirname, '../students.txt');
