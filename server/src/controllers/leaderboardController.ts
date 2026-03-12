@@ -20,12 +20,15 @@ export async function getAllTimeLeaderboard(_req: Request, res: Response): Promi
 }
 
 export async function getWeeklyLeaderboard(_req: Request, res: Response): Promise<void> {
-  const oneWeekAgo = new Date();
-  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+  // Fixed week: Sunday 00:00 → Saturday 23:59:59
+  const now = new Date();
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - now.getDay()); // most recent Sunday
+  weekStart.setHours(0, 0, 0, 0);
 
-  // Get top score per user from the last 7 days
+  // Get top score per user from the current week
   const weeklyScores = await Score.aggregate([
-    { $match: { createdAt: { $gte: oneWeekAgo } } },
+    { $match: { createdAt: { $gte: weekStart } } },
     { $group: { _id: '$userId', topScore: { $max: '$score' } } },
     { $sort: { topScore: -1 } },
   ]);
