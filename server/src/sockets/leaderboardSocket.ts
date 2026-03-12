@@ -28,13 +28,14 @@ export async function emitLeaderboardUpdate(): Promise<void> {
 
   const users = await User.find()
     .sort({ bestScore: -1, rollNumber: 1 })
-    .select('rollNumber name bestScore')
+    .select('rollNumber name gender bestScore')
     .lean();
 
   const leaderboard = users.map((u) => ({
     id: u._id,
     rollNumber: u.rollNumber,
     name: u.name,
+    gender: u.gender || 'M',
     bestScore: u.bestScore,
   }));
 

@@ -3,6 +3,7 @@ import mongoose, { Schema, type Document } from 'mongoose';
 export interface IUser extends Document {
   rollNumber: string;
   name: string;
+  gender: 'M' | 'F';
   passwordHash: string;
   bestScore: number;
   createdAt: Date;
@@ -11,6 +12,7 @@ export interface IUser extends Document {
 const UserSchema = new Schema<IUser>({
   rollNumber: { type: String, required: true, unique: true, uppercase: true, trim: true },
   name:         { type: String, required: true, trim: true },
+  gender:       { type: String, enum: ['M', 'F'], default: 'M', uppercase: true, trim: true },
   passwordHash: { type: String, required: true },
   bestScore:    { type: Number, default: 0 },
   createdAt:    { type: Date, default: Date.now },

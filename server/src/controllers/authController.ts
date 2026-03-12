@@ -38,6 +38,7 @@ export async function login(req: AuthRequest, res: Response): Promise<void> {
       id: user._id,
       rollNumber: user.rollNumber,
       name: user.name,
+      gender: user.gender || 'M',
       bestScore: user.bestScore,
     },
   });
@@ -81,6 +82,7 @@ export async function getMe(req: AuthRequest, res: Response): Promise<void> {
     id: user._id,
     rollNumber: user.rollNumber,
     name: user.name,
+    gender: user.gender || 'M',
     bestScore: user.bestScore,
   });
 }

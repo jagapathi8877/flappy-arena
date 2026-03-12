@@ -6,7 +6,8 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "seed": "tsx src/seed.ts"
+    "seed": "tsx src/seed.ts",
+    "backfill:gender": "tsx src/backfillGender.ts"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

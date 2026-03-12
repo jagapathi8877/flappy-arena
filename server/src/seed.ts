@@ -5,7 +5,12 @@ import bcrypt from 'bcryptjs';
 import { connectDB } from './database/connection';
 import { User } from './models/User';
 
-function loadStudents(): [string, string][] {
+function normalizeGender(value?: string): 'M' | 'F' {
+  const normalized = (value || '').trim().toUpperCase();
+  return normalized === 'F' ? 'F' : 'M';
+}
+
+function loadStudents(): [string, string, 'M' | 'F'][] {
   const filePath = path.join(__dirname, '../students.txt');
   if (!fs.existsSync(filePath)) {
     console.error('students.txt not found at:', filePath);
@@ -13,12 +18,23 @@ function loadStudents(): [string, string][] {
   }
   const lines = fs.readFileSync(filePath, 'utf-8').split(/\r?\n/).filter(l => l.trim());
   return lines.map(line => {
-    // Support formats: ROLL<tab>NAME or SL.NO<tab>ROLL<tab>NAME
+    // Supported formats:
+    // 1) ROLL<TAB>NAME
+    // 2) ROLL<TAB>NAME<TAB>GENDER
+    // 3) SL.NO<TAB>ROLL<TAB>NAME
+    // 4) SL.NO<TAB>ROLL<TAB>NAME<TAB>GENDER
     const parts = line.split('\t').map(p => p.trim());
-    if (parts.length >= 3) {
-      return [parts[1], parts[2]] as [string, string];
+    if (parts.length >= 4) {
+      return [parts[1], parts[2], normalizeGender(parts[3])] as [string, string, 'M' | 'F'];
     }
-    return [parts[0], parts[1]] as [string, string];
+    if (parts.length >= 3) {
+      const maybeGender = normalizeGender(parts[2]);
+      if (parts[2].toUpperCase() === 'M' || parts[2].toUpperCase() === 'F') {
+        return [parts[0], parts[1], maybeGender] as [string, string, 'M' | 'F'];
+      }
+      return [parts[1], parts[2], 'M'] as [string, string, 'M' | 'F'];
+    }
+    return [parts[0], parts[1], 'M'] as [string, string, 'M' | 'F'];
   });
 }
 
@@ -47,12 +63,13 @@ async function seed() {
   for (let i = 0; i < STUDENT_LIST.length; i += BATCH_SIZE) {
     const batch = STUDENT_LIST.slice(i, i + BATCH_SIZE);
     const docs = await Promise.all(
-      batch.map(async ([roll, name]) => {
+      batch.map(async ([roll, name, gender]) => {
         const rollNumber = roll.toUpperCase().trim();
         const passwordHash = await bcrypt.hash(rollNumber, 10);
         return {
           rollNumber,
           name: name.trim(),
+          gender,
           passwordHash,
           bestScore: 0,
         };

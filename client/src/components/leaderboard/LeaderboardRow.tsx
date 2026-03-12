@@ -14,6 +14,7 @@ export const LeaderboardRow = forwardRef<HTMLTableRowElement, LeaderboardRowProp
   ({ player, rank, isCurrentUser, rankChange }, ref) => {
   const isTop1 = rank === 1;
   const isTop3 = rank <= 3;
+  const topTitle = player.gender === 'F' ? 'Flappy Queen' : 'Flappy King';
 
   return (
     <tr
@@ -37,7 +38,7 @@ export const LeaderboardRow = forwardRef<HTMLTableRowElement, LeaderboardRowProp
           <span className={isTop1 ? 'text-gold' : ''}>{player.name}</span>
           {isTop1 && (
             <span className="text-[10px] font-black uppercase tracking-wider text-gold bg-gold/15 px-1.5 py-0.5 rounded border border-gold/30">
-              Flappy King
+              {topTitle}
             </span>
           )}
           {isCurrentUser && (

@@ -43,20 +43,21 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
   }, [board]);
 
   // Jump to my rank
-  // Flappy King — rank 1 with score > 0
+  // Flappy title holder — rank 1 with score > 0
   const king = board.length > 0 && board[0].bestScore > 0 ? board[0] : null;
+  const throneTitle = king?.gender === 'F' ? 'Current Flappy Queen' : 'Current Flappy King';
 
   return (
     <div className="space-y-3">
       {/* Your Position + Rank Window */}
       <YourPosition board={board} currentRollNumber={currentRollNumber} />
 
-      {/* Flappy King Throne */}
+      {/* Flappy Throne */}
       {king && (
         <Card className="p-4 sm:p-5 text-center bg-gradient-to-b from-gold/10 to-transparent border-gold/30">
           <div className="text-3xl mb-1" style={{ filter: 'drop-shadow(0 0 8px rgba(240, 184, 0, 0.5))' }}>👑</div>
           <div className="text-xs font-black uppercase tracking-widest text-gold/70 mb-1">
-            Current Flappy King
+            {throneTitle}
           </div>
           <div className="text-lg sm:text-xl font-black text-text-dark">
             {king.name}

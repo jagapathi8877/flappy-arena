@@ -5,7 +5,7 @@ import { Score } from '../models/Score';
 export async function getAllTimeLeaderboard(_req: Request, res: Response): Promise<void> {
   const users = await User.find()
     .sort({ bestScore: -1, rollNumber: 1 })
-    .select('rollNumber name bestScore')
+    .select('rollNumber name gender bestScore')
     .lean();
 
   res.json(
@@ -13,6 +13,7 @@ export async function getAllTimeLeaderboard(_req: Request, res: Response): Promi
       id: u._id,
       rollNumber: u.rollNumber,
       name: u.name,
+      gender: u.gender || 'M',
       bestScore: u.bestScore,
     })),
   );
@@ -36,7 +37,7 @@ export async function getWeeklyLeaderboard(_req: Request, res: Response): Promis
 
   const userIds = weeklyScores.map((s) => s._id);
   const users = await User.find({ _id: { $in: userIds } })
-    .select('rollNumber name bestScore')
+    .select('rollNumber name gender bestScore')
     .lean();
 
   const userMap = new Map(users.map((u) => [u._id.toString(), u]));
@@ -49,6 +50,7 @@ export async function getWeeklyLeaderboard(_req: Request, res: Response): Promis
         id: u._id,
         rollNumber: u.rollNumber,
         name: u.name,
+        gender: u.gender || 'M',
         bestScore: s.topScore as number,
       };
     })

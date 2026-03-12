@@ -13,6 +13,7 @@
     "start": "node server/dist/server.js",
     "seed": "cd server && npm run seed",
     "seed:force": "cd server && npm run seed -- --force",
+    "backfill:gender": "cd server && npm run backfill:gender",
     "install:all": "cd client && npm install && cd ../server && npm install"
   },
   "devDependencies": {

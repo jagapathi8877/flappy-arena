@@ -6,7 +6,7 @@ interface CrownBadgeProps {
 
 export const CrownBadge: React.FC<CrownBadgeProps> = ({ rank }) => {
   if (rank === 1) {
-    return <span className="text-2xl drop-shadow-md" title="Flappy King">👑</span>;
+    return <span className="text-2xl drop-shadow-md" title="Top Rank">👑</span>;
   }
   if (rank === 2) {
     return (
