@@ -3,6 +3,7 @@ import { Trophy } from 'lucide-react';
 import type { LeaderboardEntry } from '../../types/user';
 import { Tabs } from '../ui/Tabs';
 import { Card } from '../ui/Card';
+import { Input } from '../ui/Input';
 import { LeaderboardRow } from './LeaderboardRow';
 import { YourPosition } from './YourPosition';
 
@@ -18,9 +19,26 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
   currentRollNumber,
 }) => {
   const [activeTab, setActiveTab] = useState('weekly');
+  const [searchQuery, setSearchQuery] = useState('');
   const prevRanksRef = useRef<Map<string, number>>(new Map());
 
   const board = activeTab === 'weekly' ? weeklyBoard : allTimeBoard;
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+
+  const rankedBoard = useMemo(
+    () => board.map((player, index) => ({ player, rank: index + 1 })),
+    [board],
+  );
+
+  const filteredRows = useMemo(() => {
+    if (!normalizedQuery) return rankedBoard;
+
+    return rankedBoard.filter(({ player }) => {
+      const name = player.name.toLowerCase();
+      const rollNumber = player.rollNumber.toLowerCase();
+      return name.includes(normalizedQuery) || rollNumber.includes(normalizedQuery);
+    });
+  }, [rankedBoard, normalizedQuery]);
 
   // Compute rank changes
   const rankChanges = useMemo(() => {
@@ -69,25 +87,53 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
       )}
 
       <Card className="min-h-[350px] sm:min-h-[500px] flex flex-col overflow-hidden">
-        <div className="p-3 sm:p-5 border-b border-card-border bg-white/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-3">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-gold/20 rounded-lg border border-gold/30">
-              <Trophy className="w-5 h-5 text-gold" />
+        <div className="p-3 sm:p-5 border-b border-card-border bg-white/50">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gold/20 rounded-lg border border-gold/30">
+                <Trophy className="w-5 h-5 text-gold" />
+              </div>
+              <h2 className="text-lg font-bold text-text-dark">Live Leaderboard</h2>
             </div>
-            <h2 className="text-lg font-bold text-text-dark">
-              Live Leaderboard
-            </h2>
+
+            <div className="w-full lg:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <div className="w-full sm:w-auto">
+                <Tabs
+                  tabs={[
+                    { id: 'weekly', label: 'Weekly' },
+                    { id: 'alltime', label: 'All-Time' },
+                  ]}
+                  activeTab={activeTab}
+                  onChange={setActiveTab}
+                />
+              </div>
+
+              <div className="w-full sm:w-[300px] flex items-center gap-2">
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Find friend by name or roll no."
+                  aria-label="Search leaderboard"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="shrink-0 px-3 py-2 rounded-xl border border-card-border bg-white text-text-dark/70 text-sm font-semibold hover:bg-sky-bg/30 transition-colors"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
-          <div className="w-full sm:w-auto">
-            <Tabs
-              tabs={[
-                { id: 'weekly', label: 'Weekly' },
-                { id: 'alltime', label: 'All-Time' },
-              ]}
-              activeTab={activeTab}
-              onChange={setActiveTab}
-            />
-          </div>
+
+          {normalizedQuery && (
+            <div className="mt-2 text-xs text-text-dark/50 font-medium">
+              {filteredRows.length} match{filteredRows.length === 1 ? '' : 'es'} in{' '}
+              {activeTab === 'weekly' ? 'Weekly' : 'All-Time'}
+            </div>
+          )}
         </div>
 
         <div className="flex-1 overflow-auto">
@@ -101,21 +147,23 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
               </tr>
             </thead>
             <tbody>
-              {board.map((player, index) => (
+              {filteredRows.map(({ player, rank }) => (
                 <LeaderboardRow
                   key={player.rollNumber}
                   player={player}
-                  rank={index + 1}
+                  rank={rank}
                   isCurrentUser={player.rollNumber === currentRollNumber}
                   rankChange={rankChanges.get(player.rollNumber) ?? 0}
                 />
               ))}
-              {board.length === 0 && (
+              {filteredRows.length === 0 && (
                 <tr>
                   <td colSpan={4} className="p-8 text-center text-text-dark/40">
-                    {activeTab === 'weekly'
-                      ? 'No scores this week yet. Be the first!'
-                      : 'No scores yet. Play to see the leaderboard!'}
+                    {normalizedQuery
+                      ? `No player found for "${searchQuery.trim()}".`
+                      : activeTab === 'weekly'
+                        ? 'No scores this week yet. Be the first!'
+                        : 'No scores yet. Play to see the leaderboard!'}
                   </td>
                 </tr>
               )}
