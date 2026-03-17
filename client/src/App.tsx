@@ -16,6 +16,7 @@ export default function App() {
   const [recentScore, setRecentScore] = useState<number | null>(null);
   const [isNewBest, setIsNewBest] = useState(false);
   const [loading, setLoading] = useState(api.isLoggedIn());
+  const [liveUpdateTick, setLiveUpdateTick] = useState(0);
 
   // Restore session from token
   useEffect(() => {
@@ -43,6 +44,7 @@ export default function App() {
     connectSocket();
     const unsub = onLeaderboardUpdate((data) => {
       setAllTimeBoard(data);
+      setLiveUpdateTick((tick) => tick + 1);
       // Also refresh weekly
       api.getWeeklyLeaderboard().then(setWeeklyBoard).catch(console.error);
     });
@@ -114,6 +116,7 @@ export default function App() {
       user={user}
       allTimeBoard={allTimeBoard}
       weeklyBoard={weeklyBoard}
+      liveUpdateTick={liveUpdateTick}
       recentScore={recentScore}
       isNewBest={isNewBest}
       onPlay={() => setView('game')}

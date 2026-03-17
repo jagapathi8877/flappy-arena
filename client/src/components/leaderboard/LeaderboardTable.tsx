@@ -10,19 +10,37 @@ import { YourPosition } from './YourPosition';
 interface LeaderboardTableProps {
   allTimeBoard: LeaderboardEntry[];
   weeklyBoard: LeaderboardEntry[];
+  liveUpdateTick: number;
   currentRollNumber: string;
 }
 
 export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
   allTimeBoard,
   weeklyBoard,
+  liveUpdateTick,
   currentRollNumber,
 }) => {
   const [activeTab, setActiveTab] = useState('weekly');
   const [searchQuery, setSearchQuery] = useState('');
-  const prevRanksRef = useRef<Map<string, number>>(new Map());
+  const prevRanksRef = useRef<{ weekly: Map<string, number>; alltime: Map<string, number> }>({
+    weekly: new Map(),
+    alltime: new Map(),
+  });
+  const hasSnapshotRef = useRef<{ weekly: boolean; alltime: boolean }>({
+    weekly: false,
+    alltime: false,
+  });
+  const lastBoardRef = useRef<{ weekly: LeaderboardEntry[] | null; alltime: LeaderboardEntry[] | null }>({
+    weekly: null,
+    alltime: null,
+  });
+  const lastLiveTickRef = useRef<{ weekly: number; alltime: number }>({
+    weekly: 0,
+    alltime: 0,
+  });
 
   const board = activeTab === 'weekly' ? weeklyBoard : allTimeBoard;
+  const boardKey = activeTab === 'weekly' ? 'weekly' : 'alltime';
   const normalizedQuery = searchQuery.trim().toLowerCase();
 
   const rankedBoard = useMemo(
@@ -43,22 +61,42 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
   // Compute rank changes
   const rankChanges = useMemo(() => {
     const changes = new Map<string, number>();
-    const prev = prevRanksRef.current;
+    const prev = prevRanksRef.current[boardKey];
+    const boardChanged = lastBoardRef.current[boardKey] !== board;
+    const isLiveBoardUpdate = boardChanged && liveUpdateTick > lastLiveTickRef.current[boardKey];
+
+    if (isLiveBoardUpdate) {
+      lastLiveTickRef.current[boardKey] = liveUpdateTick;
+    }
+
+    lastBoardRef.current[boardKey] = board;
+
+    if (!hasSnapshotRef.current[boardKey] || !isLiveBoardUpdate) return changes;
+
     board.forEach((p, i) => {
       const prevRank = prev.get(p.rollNumber);
       if (prevRank !== undefined) {
         changes.set(p.rollNumber, prevRank - (i + 1));
       }
     });
-    return changes;
-  }, [board]);
 
-  // Update previous ranks after render
+    return changes;
+  }, [board, boardKey, liveUpdateTick]);
+
+  // Update previous ranks snapshot per leaderboard after render
   useEffect(() => {
     const map = new Map<string, number>();
-    board.forEach((p, i) => map.set(p.rollNumber, i + 1));
-    prevRanksRef.current = map;
-  }, [board]);
+    weeklyBoard.forEach((p, i) => map.set(p.rollNumber, i + 1));
+    prevRanksRef.current.weekly = map;
+    hasSnapshotRef.current.weekly = true;
+  }, [weeklyBoard]);
+
+  useEffect(() => {
+    const map = new Map<string, number>();
+    allTimeBoard.forEach((p, i) => map.set(p.rollNumber, i + 1));
+    prevRanksRef.current.alltime = map;
+    hasSnapshotRef.current.alltime = true;
+  }, [allTimeBoard]);
 
   // Jump to my rank
   // Flappy title holder — rank 1 with score > 0

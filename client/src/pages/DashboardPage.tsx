@@ -9,6 +9,7 @@ interface DashboardPageProps {
   user: UserData;
   allTimeBoard: LeaderboardEntry[];
   weeklyBoard: LeaderboardEntry[];
+  liveUpdateTick: number;
   recentScore: number | null;
   isNewBest: boolean;
   onPlay: () => void;
@@ -19,6 +20,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   user,
   allTimeBoard,
   weeklyBoard,
+  liveUpdateTick,
   recentScore,
   isNewBest,
   onPlay,
@@ -85,6 +87,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           <LeaderboardTable
             allTimeBoard={allTimeBoard}
             weeklyBoard={weeklyBoard}
+            liveUpdateTick={liveUpdateTick}
             currentRollNumber={user.rollNumber}
           />
         </div>
